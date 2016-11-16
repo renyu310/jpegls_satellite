@@ -1,5 +1,5 @@
-﻿#JPEG-LS解压缩输入配置文件，大小写不敏感，'#'为注释
-NEAR 3
+#JPEG-LS
+NEAR 0
 
 BASIC_T1 3
 BASIC_T2 7
@@ -7,16 +7,16 @@ BASIC_T3 21
 
 RESET 64
 
-ROWS 64
-COLOMNS 1024
+ROWS 256
+COLOMNS 256
 
-BITS 10
+BITS 12
 
 #大小字节序 Big or Little
 ENDIAN Big
 
 #是否使用影像JPEG-LS头标签参数的开关，设置后不使用图像自带参数，接收自定义参数
-NOMARKER 
+#NOMARKER 
 
 #是否使用游程编码的开关
 #NORUNS
@@ -24,14 +24,17 @@ NOMARKER
 #显示屏幕输出开关
 VERBOSE
 
+input data/parall/testt16.jls
+output data/parall/hahaha.dat
+
 #input data/input/T8C0E0.JLS
 #output data/output/T8C0E0_decompress.ppm
 
 #input data/input/nad_ccd2_nomarker.jls
 #output data/output/nad_ccd2_decompress_from_nomark.ppm
 
-input data/input/nad_ccd1_944.jls
-output data/output/nad_ccd1_944_decompress_from_nomark.ppm
+#input data/input/nad_ccd1_944.jls
+#output data/output/nad_ccd1_944_decompress_from_nomark.ppm
 
 
 
