@@ -11,13 +11,13 @@ private:
 	char buffer[4];
 	bool swapped32big;
 public:
-	BinaryInputStream(streambuf *buf, Endian e = NoEndian)
+	BinaryInputStream(streambuf *buf, Endian e = BigEndian)
 		: istream(buf)
 	{
 		endian = e; swapped32big = false;
 	}
 
-	BinaryInputStream(istream& istr, Endian e = NoEndian)
+	BinaryInputStream(istream& istr, Endian e = BigEndian)
 		: istream(istr.rdbuf())
 	{
 		endian = e; swapped32big = false;
@@ -130,13 +130,13 @@ private:
 	Endian endian;
 	unsigned char buffer[4];
 public:
-	BinaryOutputStream(streambuf *buf, Endian e = NoEndian)
+	BinaryOutputStream(streambuf *buf, Endian e = BigEndian)
 		: ostream(buf)
 	{
 		endian = e;
 	}
 
-	BinaryOutputStream(ostream &ostr, Endian e = NoEndian)
+	BinaryOutputStream(ostream &ostr, Endian e = BigEndian)
 		: ostream(ostr.rdbuf())
 	{
 		endian = e;
