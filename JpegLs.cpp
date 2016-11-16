@@ -2,7 +2,8 @@
 #include "BinaryIO.h"
 #include <cassert>
 #include <fstream>
-
+#include <string>
+using namespace std;
 
 static Uint32 		readBitByteOffset = 0;
 static Int16 		readBitCount = 0;
@@ -715,19 +716,15 @@ bool encoder(Options opt)
 	string outfile;
 	if ((infile = opt.getInputFile()).empty() || (outfile = opt.getOutputFile()).empty())
 	{
-		cerr << "ÊäÈëÊä³öÎÄ¼ş²»ÕıÈ·!" << endl;
+		cerr << "è¾“å…¥è¾“å‡ºæ–‡ä»¶ä¸æ­£ç¡®!" << endl;
 		return 0;
 	}
 
-	ifstream ifs(infile, ios::binary);
-	ofstream ofs(outfile, ios::binary);
+	ifstream ifs(infile.c_str(), ios::binary);
+	ofstream ofs(outfile.c_str(), ios::binary);
 
 	BinaryInputStream in(ifs.rdbuf(), opt.getEndian());
 	BinaryOutputStream out(ofs.rdbuf(), opt.getEndian());
-
-#define CLAMP_1(i)	(((i) > MAXVAL || (i) < NEAR+1) ? NEAR+1 : (i))
-#define CLAMP_2(i)	(((i) > MAXVAL || (i) < T1) ? T1 : (i))
-#define CLAMP_3(i)	(((i) > MAXVAL || (i) < T2) ? T2 : (i))
 
 
 	if (MAXVAL >= 128) {
@@ -785,7 +782,7 @@ bool encoder(Options opt)
 	Assert(bpp >= 2);
 	Assert(LIMIT > qbpp);			// Else LIMIT-qbpp-1 will fail (see A.5.3)
 
-	//Í·±êÊ¶ÀïÃæµÄ¶«Î÷¶¼¹¹½¨ÍêÁË£¬¿ÉÒÔĞ´ÈëÊä³öÎÄ¼ş
+	//å¤´æ ‡è¯†é‡Œé¢çš„ä¸œè¥¿éƒ½æ„å»ºå®Œäº†ï¼Œå¯ä»¥å†™å…¥è¾“å‡ºæ–‡ä»¶
 
 	writeSOI(out);
 	writeSOF55(out, P, ROWS, COLUMNS);
@@ -848,7 +845,7 @@ bool encoder(Options opt)
 	Uint16 *thisRow = rowA;
 	Uint16 *prevRow = rowB;
 
-	Uint16 prevRa0 = 0;//³õÖµÓĞÒÉÎÊ
+	Uint16 prevRa0 = 0;//åˆå€¼æœ‰ç–‘é—®
 
 	for (row = 0; row < ROWS; row++)
 	{
@@ -863,16 +860,16 @@ bool encoder(Options opt)
 			// a x . .
 			// . . . .
 
-			Int32 Rx;	//ÖØ¹¹Öµ
-			//±ßÔµÖµ£¨µÚÒ»ĞĞ0£©
+			Int32 Rx;	//é‡æ„å€¼
+			//è¾¹ç¼˜å€¼ï¼ˆç¬¬ä¸€è¡Œ0ï¼‰
 
 			Uint16 Ra;
 			Uint16 Rb;
 			Uint16 Rc;
 			Uint16 Rd;
 
-			//´¦Àí±ßÔµÖµ£¬µÚÒ»ĞĞÉÏÃæ²¹È«0  µÚÒ»ÁĞ×ó±ß²¹ÏÂÒÆÒ»Î»µÄµÚÒ»ÁĞ£¬
-			//×îºóÒ»ÁĞÓÒ±ß²¹×îºóÒ»ÁĞ
+			//å¤„ç†è¾¹ç¼˜å€¼ï¼Œç¬¬ä¸€è¡Œä¸Šé¢è¡¥å…¨0  ç¬¬ä¸€åˆ—å·¦è¾¹è¡¥ä¸‹ç§»ä¸€ä½çš„ç¬¬ä¸€åˆ—ï¼Œ
+			//æœ€åä¸€åˆ—å³è¾¹è¡¥æœ€åä¸€åˆ—
 
 			if (row > 0)
 			{
@@ -887,17 +884,17 @@ bool encoder(Options opt)
 				Ra = (col > 0) ? thisRow[col - 1] : (prevRa0 = 0);
 			}
 
-			//¼ÆËã¾Ö²¿Ìİ¶È
+			//è®¡ç®—å±€éƒ¨æ¢¯åº¦
 			Int32 D1 = (Int32)Rd - Rb;
 			Int32 D2 = (Int32)Rb - Rc;
 			Int32 D3 = (Int32)Rc - Ra;
 
-			//¸ù¾İÌİ¶ÈÑ¡Ôñ±àÂëÄ£Ê½
+			//æ ¹æ®æ¢¯åº¦é€‰æ‹©ç¼–ç æ¨¡å¼
 
 			if (Abs(D1) <= NEAR && Abs(D2) <= NEAR && Abs(D3) <= NEAR && havaRun)
 			{
 				//||-------------------------------------------------------------------------------//
-				//||				//ÓÎ³Ì±àÂë
+				//||				//æ¸¸ç¨‹ç¼–ç 
 				//||-------------------------------------------------------------------------------//
 
 				//dumpWriteBitPosition();
@@ -1002,9 +999,9 @@ bool encoder(Options opt)
 			else
 			{
 				//||-------------------------------------------------------------------------------//
-				//||				//³£¹æ±àÂë
+				//||				//å¸¸è§„ç¼–ç 
 				//||-------------------------------------------------------------------------------//
-				//Ìİ¶ÈÁ¿»¯
+				//æ¢¯åº¦é‡åŒ–
 				Int16 Q1, Q2, Q3;
 
 				if (D1 <= -T3)   Q1 = -4;
@@ -1248,7 +1245,650 @@ bool encoder(Options opt)
 }
 
 
-bool decoder(Options opt)
+//bool decoder(Options opt)
+//{
+//	bool bad = false;
+//
+//
+//	bool verbose = opt.isVerbose();
+//
+//	bool useJPEGmarkers = opt.haveMarker();
+//	bool useRunMode = opt.haveRuns();
+//
+//	unsigned rows = 0;
+//	if (!useJPEGmarkers){
+//		rows = opt.getRows();
+//		if (rows == 0){
+//			cerr << "Need " << " - rows" << endl;
+//			return 1;
+//		}
+//	}
+//
+//	unsigned cols = 0;
+//	if (!useJPEGmarkers) {
+//		cols = opt.getCols();
+//		if (cols == 0){
+//			cerr << "Need " << " - columns" << endl;
+//			return 1;;
+//		}
+//	}
+//	unsigned bits = 0;
+//	if (!useJPEGmarkers) {
+//		bits = opt.getBits();
+//		if (bits == 0){
+//			cerr << "Need" << " - bits" << endl;
+//			return 1;
+//		}
+//	}
+//
+//	Assert(bits <= 16);
+//
+//	Uint16 NEAR = 0;		// Lossless if zero
+//	Uint16 T1 = 0;
+//	Uint16 T2 = 0;
+//	Uint16 T3 = 0;
+//	Uint16 RESET = 0;
+//
+//
+//	Uint32 BASIC_T1 = 3;
+//	Uint32 BASIC_T2 = 7;
+//	Uint32 BASIC_T3 = 21;
+//
+//
+//	if (!useJPEGmarkers) {
+//		NEAR = opt.getNear();
+//		BASIC_T1 = opt.getBT1();
+//		BASIC_T2 = opt.getBT2();
+//		BASIC_T3 = opt.getBT3();
+//		RESET = opt.getReset();
+//	}
+//
+//
+//
+//	string infile = opt.getInputFile();
+//	string outfile = opt.getOutputFile();
+//
+//	ifstream ifs(infile, ios::binary);
+//	ofstream ofs(outfile, ios::binary);
+//
+//	BinaryInputStream in(ifs.rdbuf(), opt.getEndian());
+//	BinaryOutputStream out(ofs.rdbuf(), opt.getEndian());
+//
+//
+//	bool success = true;
+//
+//	Uint32 ROWS;
+//	Uint32 COLUMNS;
+//	Uint16 P;		// Sample precision
+//	Uint32 MAXVAL;
+//
+//	bool haveLSE1 = false;
+//
+//	if (useJPEGmarkers)
+//	{
+//		bool readrequiredmarkers = false;
+//		Uint16 marker;
+//		if (readJPEGMarker(in, marker) && readSOI(in, marker))
+//		{
+//			if (readJPEGMarker(in, marker) && readSOF55(in, marker, P, ROWS, COLUMNS)
+//				|| (haveLSE1 = readLSE1(in, marker, MAXVAL, T1, T2, T3, RESET)) && readJPEGMarker(in, marker) && readSOF55(in, marker, P, ROWS, COLUMNS))
+//			{
+//				if (readJPEGMarker(in, marker) && readSOS(in, marker, NEAR)
+//					|| !haveLSE1 && (haveLSE1 = readLSE1(in, marker, MAXVAL, T1, T2, T3, RESET)) && readJPEGMarker(in, marker) && readSOS(in, marker, NEAR))
+//				{
+//
+//					readrequiredmarkers = true;
+//				}
+//				else
+//				{
+//					cerr << "Corrupt JPEG stream ... expected SOS Marker" << endl;
+//				}
+//			}
+//			else
+//			{
+//				cerr << "Corrupt JPEG stream ... expected SOF55 Marker" << endl;
+//			}
+//		}
+//		else
+//		{
+//			cerr << "Corrupt JPEG stream ... expected SOI Marker" << endl;
+//		}
+//
+//		if (!readrequiredmarkers) {
+//			exit(1);
+//		}
+//	}
+//	else {
+//		P = bits;
+//		ROWS = rows;
+//		COLUMNS = cols;
+//	}
+//
+//	if (!useJPEGmarkers || !haveLSE1)
+//	{	// Note that the LSE ID 1 marker is optional
+//		MAXVAL = (1ul << P) - 1;
+//
+//		if (!RESET) RESET = 64;		// May have been set on command line
+//
+//		// Initialization of default parameters as per A.1 reference to C.2.4.1.1.1
+//
+//		// Thresholds for context gradients ...
+//
+//
+//#define CLAMP_1(i)	((i > MAXVAL || i < NEAR+1) ? NEAR+1 : i)
+//#define CLAMP_2(i)	((i > MAXVAL || i < T1) ? T1 : i)
+//#define CLAMP_3(i)	((i > MAXVAL || i < T2) ? T2 : i)
+//
+//		// Only replace T1, T2, T3 if not set on command line ...
+//
+//		if (MAXVAL >= 128)
+//		{
+//			Uint32 FACTOR = FloorDivision(Minimum(MAXVAL, 4095) + 128, 256);
+//			if (verbose) cerr << "MAXVAL >= 128" << endl;
+//			if (verbose) cerr << "FACTOR = " << dec << FACTOR << endl;
+//			if (!T1) T1 = CLAMP_1(FACTOR*(BASIC_T1 - 2) + 2 + 3 * NEAR);
+//			if (!T2) T2 = CLAMP_2(FACTOR*(BASIC_T2 - 3) + 3 + 5 * NEAR);
+//			if (!T3) T3 = CLAMP_3(FACTOR*(BASIC_T3 - 4) + 4 + 7 * NEAR);
+//		}
+//		else
+//		{
+//			Uint32 FACTOR = FloorDivision(256, MAXVAL + 1);
+//			if (verbose) cerr << "MAXVAL < 128" << endl;
+//			if (verbose) cerr << "FACTOR = " << dec << FACTOR << endl;
+//			if (!T1) T1 = CLAMP_1(Maximum(2, BASIC_T1 / FACTOR + 3 * NEAR));	// ? should these calculations be float since we are dividing ? :(
+//			if (!T2) T2 = CLAMP_2(Maximum(3, BASIC_T2 / FACTOR + 5 * NEAR));
+//			if (!T3) T3 = CLAMP_3(Maximum(4, BASIC_T3 / FACTOR + 7 * NEAR));
+//		}
+//
+//	}
+//
+//	if (verbose) cerr << "NEAR = " << NEAR << endl;
+//	if (verbose) cerr << "ROWS = " << ROWS << endl;
+//	if (verbose) cerr << "COLUMNS = " << COLUMNS << endl;
+//	if (verbose) cerr << "P = " << P << endl;
+//	if (verbose) cerr << "MAXVAL = " << MAXVAL << endl;
+//	if (verbose) cerr << "RESET = " << RESET << endl;
+//	if (verbose) cerr << "T1 = " << T1 << endl;
+//	if (verbose) cerr << "T2 = " << T2 << endl;
+//	if (verbose) cerr << "T3 = " << T3 << endl;
+//
+//	Assert(ROWS);
+//	Assert(COLUMNS);
+//	Assert(P);
+//	Assert(T1 == 0 || (NEAR + 1 <= T1 && T1 <= MAXVAL));
+//	Assert(T2 == 0 || (T1 <= T2 && T2 <= MAXVAL));
+//	Assert(T3 == 0 || (T2 <= T3 && T3 <= MAXVAL));
+//
+//	// Initialization as per Annex A.2.1
+//
+//	Int32 RANGE = FloorDivision(MAXVAL + 2 * NEAR, 2 * NEAR + 1) + 1;	// int not unsigned to avoid need for cast when used
+//
+//	if (verbose) cerr << "RANGE = " << RANGE << endl;
+//
+//	Assert(MAXVAL == 0 || (1 <= MAXVAL && MAXVAL < 1ul << P));
+//	if (NEAR == 0) Assert(RANGE == MAXVAL + 1);
+//
+//	Uint16 bpp = Maximum(2, Ceiling(Log2(MAXVAL + 1)));	// Number of bits needed to represent MAXVAL with a minumum of 2
+//	Uint16 qbpp = Ceiling(Log2(RANGE));		// Number of bits needed to represent a mapped error value
+//	Uint16 LIMIT = 2 * (bpp + Maximum(8, bpp));		// the value of glimit for a sample encoded in regular mode
+//
+//	if (verbose) cerr << "bpp = " << bpp << endl;
+//	if (verbose) cerr << "qbpp = " << qbpp << endl;
+//	if (verbose) cerr << "LIMIT = " << LIMIT << endl;
+//
+//	Assert(bpp >= 2);
+//	Assert(LIMIT > qbpp);			// Else LIMIT-qbpp-1 will fail (see A.5.3)
+//
+//
+//	// Fixed constants
+//
+//	const Uint16 nContexts = 365;	// plus two more run mode interruption contexts
+//
+//	const Int32 MIN_C = -128;	// Limits on values in bias correction array C
+//	const Int32 MAX_C = 127;
+//
+//	// Initialization of variables ...
+//
+//	Int32	*N = new Int32[nContexts + 2];	// counters for context type occurence [0..nContexts+2-1]
+//	// [nContexts],[nContexts+1] for run mode interruption
+//	Uint32	*A = new Uint32[nContexts + 2];	// accumulated prediction error magnitude [0..nContexts-1]
+//	// [nContexts],[nContexts+1] for run mode interruption
+//	Int32	*B = new Int32[nContexts];	// auxilliary counters for bias cancellation [0..nContexts-1]
+//	Int32	*C = new Int32[nContexts];	// counters indicating bias correction value [0..nContexts-1]
+//	// (never -ve but often used as -N[Q] so int not unsigned saves cast)
+//
+//	Int32	*Nn = new Int32[2];		// negative prediction error for run interruption [365..366]
+//
+//	Assert(N);
+//	Assert(A);
+//	Assert(B);
+//	Assert(C);
+//	Assert(Nn);
+//
+//	{
+//		Uint32 A_Init_Value = Maximum(2, FloorDivision(RANGE + (1lu << 5), (1lu << 6)));
+//		if (verbose) cerr << "A_Init_Value = " << A_Init_Value << endl;
+//		unsigned i;
+//		for (i = 0; i < nContexts; ++i) {
+//			N[i] = 1;
+//			A[i] = A_Init_Value;
+//			B[i] = C[i] = 0;
+//		}
+//		N[nContexts] = 1;
+//		N[nContexts + 1] = 1;
+//		A[nContexts] = A_Init_Value;
+//		A[nContexts + 1] = A_Init_Value;
+//	}
+//
+//	Nn[365 - 365] = Nn[366 - 365] = 0;
+//
+//	// The run variables seem to need to live beyond a single run or row !!!
+//
+//	unsigned RUNIndex = 0;
+//
+//	Uint16 *rowA = new Uint16[COLUMNS];
+//	Uint16 *rowB = new Uint16[COLUMNS];
+//	Assert(rowA);
+//	Assert(rowB);
+//
+//	Uint32 row = 0;
+//	Uint16 *thisRow = rowA;
+//	Uint16 *prevRow = rowB;
+//
+//	Uint16 prevRa0 = 0;
+//
+//	for (row = 0; row < ROWS; ++row) {
+//		//cerr << "Row " << row << endl;
+//
+//		Uint32 col = 0;
+//
+//		for (col = 0; col < COLUMNS; ++col) {
+//
+//			//cerr << "\tcol = " << col << endl;
+//
+//			//	c b d .
+//			//	a x . .
+//			//	. . . .
+//
+//			Int32 Rx;	// Reconstructed value - not Uint16 to allow overrange before clamping
+//
+//			// value at edges (first row and first col is zero) ...
+//
+//			Uint16 Ra;
+//			Uint16 Rb;
+//			Uint16 Rc;
+//			Uint16 Rd;
+//
+//			if (row > 0) {
+//				Rb = prevRow[col];
+//				Rc = (col > 0) ? prevRow[col - 1] : prevRa0;
+//				Ra = (col > 0) ? thisRow[col - 1] : (prevRa0 = Rb);
+//				Rd = (col + 1 < COLUMNS) ? prevRow[col + 1] : Rb;
+//			}
+//			else {
+//				Rb = Rc = Rd = 0;
+//				Ra = (col > 0) ? thisRow[col - 1] : (prevRa0 = 0);
+//			}
+//
+//			//cerr << "\t\tRa = " << Ra << endl;
+//			//cerr << "\t\tRb = " << Rb << endl;
+//			//cerr << "\t\tRc = " << Rc << endl;
+//			//cerr << "\t\tRd = " << Rd << endl;
+//
+//			// NB. We want the Reconstructed values, which are the same
+//			// in lossless mode, but if NEAR != 0 take care to write back
+//			// reconstructed values into the row buffers in previous positions
+//
+//			// Compute local gradient ...
+//
+//			Int32 D1 = (Int32)Rd - Rb;
+//			Int32 D2 = (Int32)Rb - Rc;
+//			Int32 D3 = (Int32)Rc - Ra;
+//
+//			//cerr << "\t\tD1 = " << D1 << endl;
+//			//cerr << "\t\tD2 = " << D2 << endl;
+//			//cerr << "\t\tD3 = " << D3 << endl;
+//
+//			// Check for run mode ... (should check Abs() works ok for Int32)
+//
+//			if (Abs(D1) <= NEAR && Abs(D2) <= NEAR && Abs(D3) <= NEAR && useRunMode)
+//			{
+//				// Run mode
+//
+//				//cerr << "Row at run start " << row << endl;
+//				//cerr << "\tcol at run start " << col << endl;
+//				//dumpReadBitPosition();
+//				// Why is RUNIndex not reset to 0 here ?
+//				Uint32 R;
+//				while (readBit(in, R))
+//				{
+//					//cerr << "\tcol " << col << endl;
+//					if (R == 1)
+//					{
+//						// Fill image with 2^J[RUNIndex] samples of Ra or till EOL
+//						Int32 rm = J_rm[RUNIndex];
+//						//cerr << "\tRUNIndex " << RUNIndex << endl;
+//						//cerr << "\tFilling with " << rm << " samples of Ra " << Ra << endl;
+//						while (rm-- && col < COLUMNS)
+//						{
+//							thisRow[col] = Ra;
+//							//cerr << "pixel[" << row << "," << col << "] = " << thisRow[col] << endl;
+//							++col;
+//						}
+//						// This will match when exact count coincides with end of row ...
+//						if (rm == -1 && RUNIndex < 31)
+//						{
+//							++RUNIndex;
+//							//cerr << "\tRUNIndex incremented to " << RUNIndex << endl;
+//						}
+//						if (col >= COLUMNS)
+//						{
+//							//cerr << "\tFilled to end of row" << endl;
+//							//cerr << "\tAfter having found end of row " << endl;
+//							//dumpReadBitPosition();
+//							break;
+//						}
+//					}
+//					else {
+//						// Read J[RUNIndex] bits and fill image with that number of samples of Ra
+//						Uint16 bits = J[RUNIndex];
+//						//cerr << "\tRUNIndex " << RUNIndex << endl;
+//						//cerr << "\tReading bits " << bits << endl;
+//						Uint32 nfill = 0;
+//						Uint32 bit;
+//						// msb bit is read first
+//						while (bits-- && readBit(in, bit)) {
+//							nfill = (nfill << 1) | bit;
+//						}
+//						//cerr << "\tFill with " << nfill << " samples of Ra " << Ra << endl;
+//						// Fill with nfill values of Ra
+//						while (nfill--) {
+//							//if (!(col<(COLUMNS-1))) {
+//							//	cerr << "Fail at line 367 ... !(col<(COLUMNS-1))" << endl;
+//							//	cerr << "\tstill to fill " << nfill+1 << endl;
+//							//	cerr << "\trow is " << row << endl;
+//							//	cerr << "\tcol is " << col << endl;
+//							//}
+//							Assert(col < (COLUMNS - 1));
+//							thisRow[col] = Ra;
+//							//cerr << "pixel[" << row << "," << col << "] = " << thisRow[col] << endl;
+//							++col;
+//						}
+//						// Decode the run interruption sample ...
+//						//cerr << "\tcol at end of run " << col << endl;
+//						//cerr << "\tBefore decoding value that ends run " << endl;
+//						//dumpReadBitPosition();
+//
+//						// First update local context for interrupting sample, since weren't kept updated during run
+//
+//						if (row > 0) {
+//							Rb = prevRow[col];
+//							Ra = (col > 0) ? thisRow[col - 1] : Rb;
+//						}
+//						else {
+//							Rb = 0;
+//							Ra = (col > 0) ? thisRow[col - 1] : 0;
+//						}
+//						//cerr << "\t\tRa = " << Ra << endl;
+//						//cerr << "\t\tRb = " << Rb << endl;
+//						codecRunEndSample(thisRow[col], Ra, Rb, RANGE, NEAR, MAXVAL, RESET, LIMIT, qbpp, J[RUNIndex], A, N, Nn, in, out, true);
+//						//cerr << "pixel[" << row << "," << col << "] = " << thisRow[col] << endl;
+//						//cerr << "\tValue that ends run " << thisRow[col] << endl;
+//						//dumpReadBitPosition();
+//						if (RUNIndex > 0) {
+//							--RUNIndex;	// NB. Do this AFTER J[RUNIndex] used in the limited length Golomb coding
+//							//cerr << "\tRUNIndex decremented to " << RUNIndex << endl;
+//						}
+//
+//						break;
+//					}
+//				}
+//			}
+//			else
+//			{
+//
+//				// Regular mode
+//
+//				// Gradient quantization ... (A.3.3)
+//
+//				Int16 Q1, Q2, Q3;
+//
+//				if (D1 <= -T3)   Q1 = -4;
+//				else if (D1 <= -T2)   Q1 = -3;
+//				else if (D1 <= -T1)   Q1 = -2;
+//				else if (D1 < -NEAR) Q1 = -1;
+//				else if (D1 <= NEAR) Q1 = 0;
+//				else if (D1 < T1)   Q1 = 1;
+//				else if (D1 < T2)   Q1 = 2;
+//				else if (D1 < T3)   Q1 = 3;
+//				else                  Q1 = 4;
+//
+//				if (D2 <= -T3)   Q2 = -4;
+//				else if (D2 <= -T2)   Q2 = -3;
+//				else if (D2 <= -T1)   Q2 = -2;
+//				else if (D2 < -NEAR) Q2 = -1;
+//				else if (D2 <= NEAR) Q2 = 0;
+//				else if (D2 < T1)   Q2 = 1;
+//				else if (D2 < T2)   Q2 = 2;
+//				else if (D2 < T3)   Q2 = 3;
+//				else                  Q2 = 4;
+//
+//				if (D3 <= -T3)   Q3 = -4;
+//				else if (D3 <= -T2)   Q3 = -3;
+//				else if (D3 <= -T1)   Q3 = -2;
+//				else if (D3 < -NEAR) Q3 = -1;
+//				else if (D3 <= NEAR) Q3 = 0;
+//				else if (D3 < T1)   Q3 = 1;
+//				else if (D3 < T2)   Q3 = 2;
+//				else if (D3 < T3)   Q3 = 3;
+//				else                  Q3 = 4;
+//
+//				//cerr << "\t\tQ1 = " << Q1 << endl;
+//				//cerr << "\t\tQ2 = " << Q2 << endl;
+//				//cerr << "\t\tQ3 = " << Q3 << endl;
+//
+//				// Context merging and determination of SIGN ... (A.3.4)
+//
+//				Int16 SIGN;
+//
+//				// "If the 1st non-zero component of vector (Q1,Q2,Q3) is negative" ...
+//
+//				if (Q1 < 0
+//					|| (Q1 == 0 && Q2 < 0)
+//					|| (Q1 == 0 && Q2 == 0 && Q3 < 0)) {
+//					Q1 = -Q1;
+//					Q2 = -Q2;
+//					Q3 = -Q3;
+//					SIGN = -1;	// signifies -ve
+//				}
+//				else {
+//					SIGN = 1;		// signifies +ve
+//				}
+//
+//				//cerr << "\t\tSIGN= " << SIGN << endl;
+//
+//				//cerr << "\t\tQ1 after SIGN = " << Q1 << endl;
+//				//cerr << "\t\tQ2 after SIGN = " << Q2 << endl;
+//				//cerr << "\t\tQ3 after SIGN = " << Q3 << endl;
+//
+//				// The derivation of Q is not specified in the standard :(
+//
+//				// Let's try this approach ....
+//
+//				// Q1 can be 0 to 4 only
+//				// Q1 1 to 4 and Q2 -4 to 4 and Q3 -4 to 4	= 4*9*9 = 324
+//				// Q1 0 and Q2 1 to 4 only and Q3 -4 to 4	= 1*4*9 = 36
+//				// Q1 0 and Q2 0 and Q3 0 to 4			= 1*1*5 = 5
+//				// total of 365
+//				// and 0,0,0 (Q == 360) only occurs for run mode or regular mode with sample interleaved
+//
+//				Uint16 Q;
+//
+//				if (Q1 == 0) {
+//					if (Q2 == 0) {
+//						Q = 360 + Q3;		// fills 360..364
+//					}
+//					else {	// Q2 is 1 to 4
+//						Q = 324 + (Q2 - 1) * 9 + (Q3 + 4);	// fills 324..359
+//					}
+//				}
+//				else {		// Q1 is 1 to 4
+//					Q = (Q1 - 1) * 81 + (Q2 + 4) * 9 + (Q3 + 4);	// fills 0..323
+//				}
+//
+//				//cerr << "\t\tQ = " << Q << endl;
+//
+//				//if (Q >= nContexts) {
+//				//	cerr << "\t\tQ1 after SIGN = " << Q1 << endl;
+//				//	cerr << "\t\tQ2 after SIGN = " << Q2 << endl;
+//				//	cerr << "\t\tQ3 after SIGN = " << Q3 << endl;
+//				//	cerr << "\t\tQ itself = " << Q << endl;
+//				//}
+//				Assert(Q < nContexts);	// Just in case
+//
+//				// Figure A.5 Edge detecting predictor ...
+//
+//				Int32 Px;	// Predicted value - not Uint16 to allow overrange before clamping
+//
+//				if (Rc >= Maximum(Ra, Rb))	Px = Minimum(Ra, Rb);
+//				else if (Rc <= Minimum(Ra, Rb))	Px = Maximum(Ra, Rb);
+//				else				Px = (Int32)Ra + Rb - Rc;
+//
+//				//cerr << "\t\tPx = " << Px << endl;
+//
+//				// Figure A.6 Prediction correction and clamping ...
+//
+//				Px = Px + ((SIGN > 0) ? C[Q] : -C[Q]);
+//
+//				//cerr << "\t\tC[Q] = " << C[Q] << endl;
+//				//cerr << "\t\tPx corrected = " << Px << endl;
+//
+//				clampPredictedValue(Px, MAXVAL);
+//
+//				//cerr << "\t\tPx clamped = " << Px << endl;
+//
+//				// Figure A.10 Prediction error Golomb encoding and decoding...
+//
+//				Uint16 k = determineGolombParameter(N[Q], A[Q]);
+//
+//				Uint32 MErrval;
+//				Int32 Errval;
+//				Int32 updateErrval;
+//
+//				if (true) // decompressing
+//				{
+//					// Decode Golomb mapped error from input...
+//					decodeMappedErrvalWithGolomb(k, LIMIT, qbpp, MErrval, in);
+//
+//					//cerr << "\t\tMErrval = " << MErrval << endl;
+//
+//					// Unmap error from non-negative (inverse of A.5.2 Figure A.11) ...
+//
+//					if (NEAR == 0 && k == 0 && 2 * B[Q] <= -N[Q]) {
+//						if (MErrval % 2 != 0)
+//							Errval = ((Int32)MErrval - 1) / 2;	//  1 becomes  0,  3 becomes  1,  5 becomes  2
+//						else
+//							Errval = -(Int32)MErrval / 2 - 1;	//  0 becomes -1,  2 becomes -2,  4 becomes -3
+//					}
+//					else {
+//						if (MErrval % 2 == 0)
+//							Errval = (Int32)MErrval / 2;	//  0 becomes  0, 2 becomes  1,  4 becomes  2
+//						else
+//							Errval = -((Int32)MErrval + 1) / 2;	//  1 becomes -1, 3 becomes -2
+//					}
+//
+//					updateErrval = Errval;			// NB. Before dequantization and sign correction
+//
+//					deQuantizeErrval(NEAR, Errval);
+//
+//					//cerr << "\t\tErrval SIGN uncorrected = " << Errval << endl;
+//
+//					if (SIGN < 0) Errval = -Errval;		// if "context type" was negative
+//
+//					//cerr << "\t\tErrval result = " << Errval << endl;
+//
+//					Rx = Px + Errval;
+//
+//					// modulo(RANGE*(2*NEAR+1)) as per F.1 Item 14
+//
+//					// (NB. Is this really the reverse of the encoding procedure ???)
+//
+//					if (Rx < -NEAR)
+//						Rx += RANGE*(2 * NEAR + 1);
+//					else if (Rx > MAXVAL + NEAR)
+//						Rx -= RANGE*(2 * NEAR + 1);
+//
+//					clampPredictedValue(Rx, MAXVAL);
+//
+//					// Apply inverse point transform and mapping table when implemented
+//
+//					thisRow[col] = (Uint16)Rx;
+//					//cerr << "pixel[" << row << "," << col << "] = " << thisRow[col] << endl;
+//				}
+//
+//				// Update variables (A.6) ...
+//
+//				//cerr << "\t\tUpdate variables with error updateErrval = " << updateErrval << endl;
+//				//cerr << "\t\tA[Q] old = " << A[Q] << endl;
+//				//cerr << "\t\tB[Q] old = " << B[Q] << endl;
+//				//cerr << "\t\tC[Q] old = " << C[Q] << endl;
+//				//cerr << "\t\tN[Q] old = " << N[Q] << endl;
+//
+//				// A.6.1 Use the signed error after modulo reduction (figure A.12 note). which is updateErrval
+//
+//				B[Q] = B[Q] + updateErrval*(2 * NEAR + 1);
+//				A[Q] = A[Q] + Abs(updateErrval);
+//				if (N[Q] == RESET) {
+//					A[Q] = A[Q] >> 1;
+//					B[Q] = B[Q] >> 1;
+//					N[Q] = N[Q] >> 1;
+//				}
+//				++N[Q];
+//
+//				//cerr << "\t\tA[Q] updated = " << A[Q] << endl;
+//				//cerr << "\t\tB[Q] updated = " << B[Q] << endl;
+//				//cerr << "\t\tC[Q] updated = " << C[Q] << endl;
+//				//cerr << "\t\tN[Q] updated = " << N[Q] << endl;
+//
+//				// A.6.2 Context dependent bias cancellation ...
+//
+//				if (B[Q] <= -N[Q]) {
+//					B[Q] += N[Q];
+//					if (C[Q] > MIN_C) --C[Q];
+//					if (B[Q] <= -N[Q]) B[Q] = -N[Q] + 1;
+//				}
+//				else if (B[Q] > 0) {
+//					B[Q] -= N[Q];
+//					if (C[Q] < MAX_C) ++C[Q];
+//					if (B[Q] > 0) B[Q] = 0;
+//				}
+//
+//				//cerr << "\t\tA[Q] bias cancelled = " << A[Q] << endl;
+//				//cerr << "\t\tB[Q] bias cancelled = " << B[Q] << endl;
+//				//cerr << "\t\tC[Q] bias cancelled = " << C[Q] << endl;
+//				//cerr << "\t\tN[Q] bias cancelled = " << N[Q] << endl;
+//
+//			}
+//		}
+//
+//		if (!writeRow(out, thisRow, COLUMNS, bpp)) Assert(0);
+//
+//		Uint16 *tmpRow = thisRow;
+//		thisRow = prevRow;
+//		prevRow = tmpRow;
+//	}
+//
+//	if (rowA) delete[] rowA;
+//	if (rowB) delete[] rowB;
+//	if (A) delete[] A;
+//	if (B) delete[] B;
+//	if (C) delete[] C;
+//	if (N) delete[] N;
+//
+//	return success ? 0 : 1;
+//}
+
+bool decoder(Options opt,BinaryInputStream &in, BinaryOutputStream &out)
 {
 	bool bad = false;
 
@@ -1258,8 +1898,8 @@ bool decoder(Options opt)
 	bool useJPEGmarkers = opt.haveMarker();
 	bool useRunMode = opt.haveRuns();
 
-	unsigned rows = 0;
-	if (!useJPEGmarkers){
+	int rows = 0;
+	if (useJPEGmarkers){
 		rows = opt.getRows();
 		if (rows == 0){
 			cerr << "Need " << " - rows" << endl;
@@ -1267,16 +1907,16 @@ bool decoder(Options opt)
 		}
 	}
 
-	unsigned cols = 0;
-	if (!useJPEGmarkers) {
+	int cols = 0;
+	if (useJPEGmarkers) {
 		cols = opt.getCols();
 		if (cols == 0){
 			cerr << "Need " << " - columns" << endl;
 			return 1;;
 		}
 	}
-	unsigned bits = 0;
-	if (!useJPEGmarkers) {
+	short bits = 0;
+	if (useJPEGmarkers) {
 		bits = opt.getBits();
 		if (bits == 0){
 			cerr << "Need" << " - bits" << endl;
@@ -1298,7 +1938,7 @@ bool decoder(Options opt)
 	Uint32 BASIC_T3 = 21;
 
 
-	if (!useJPEGmarkers) {
+	if (useJPEGmarkers) {
 		NEAR = opt.getNear();
 		BASIC_T1 = opt.getBT1();
 		BASIC_T2 = opt.getBT2();
@@ -1308,36 +1948,39 @@ bool decoder(Options opt)
 
 
 
-	string infile = opt.getInputFile();
-	string outfile = opt.getOutputFile();
+	//string infile = opt.getInputFile();
+	//string outfile = opt.getOutputFile();
 
-	ifstream ifs(infile, ios::binary);
-	ofstream ofs(outfile, ios::binary);
+	//ifstream ifs(infile, ios::binary);
+	//ofstream ofs(outfile, ios::binary);
 
-	BinaryInputStream in(ifs.rdbuf(), opt.getEndian());
-	BinaryOutputStream out(ofs.rdbuf(), opt.getEndian());
+	//BinaryInputStream in(ifs.rdbuf(), opt.getEndian());
+	//BinaryOutputStream out(ofs.rdbuf(), opt.getEndian());
 
 
 	bool success = true;
 
-	Uint32 ROWS;
-	Uint32 COLUMNS;
-	Uint16 P;		// Sample precision
+	int ROWS;
+	int COLUMNS;
+	short P;		// Sample precision
 	Uint32 MAXVAL;
+
+
+	P = bits;
+	ROWS = rows;
+	COLUMNS = cols;
 
 	bool haveLSE1 = false;
 
 	if (useJPEGmarkers)
 	{
 		bool readrequiredmarkers = false;
-		Uint16 marker;
-		if (readJPEGMarker(in, marker) && readSOI(in, marker))
+		Uint16 marker = 0xFFD8;
+		if (readSOI(in, marker))
 		{
-			if (readJPEGMarker(in, marker) && readSOF55(in, marker, P, ROWS, COLUMNS)
-				|| (haveLSE1 = readLSE1(in, marker, MAXVAL, T1, T2, T3, RESET)) && readJPEGMarker(in, marker) && readSOF55(in, marker, P, ROWS, COLUMNS))
+			if (true)
 			{
-				if (readJPEGMarker(in, marker) && readSOS(in, marker, NEAR)
-					|| !haveLSE1 && (haveLSE1 = readLSE1(in, marker, MAXVAL, T1, T2, T3, RESET)) && readJPEGMarker(in, marker) && readSOS(in, marker, NEAR))
+				if (readJPEGMarker(in, marker) && readSOS(in, marker, NEAR))
 				{
 
 					readrequiredmarkers = true;
@@ -1376,11 +2019,6 @@ bool decoder(Options opt)
 		// Initialization of default parameters as per A.1 reference to C.2.4.1.1.1
 
 		// Thresholds for context gradients ...
-
-
-#define CLAMP_1(i)	((i > MAXVAL || i < NEAR+1) ? NEAR+1 : i)
-#define CLAMP_2(i)	((i > MAXVAL || i < T1) ? T1 : i)
-#define CLAMP_3(i)	((i > MAXVAL || i < T2) ? T2 : i)
 
 		// Only replace T1, T2, T3 if not set on command line ...
 
@@ -1892,18 +2530,9 @@ bool decoder(Options opt)
 }
 
 
-
-
-
-
-
-
-
-#include <fstream>
-
 Options::Options(const string optionFile)
 {
-	//³õÊ¼»¯Ä¬ÈÏÖµ
+	//åˆå§‹åŒ–é»˜è®¤å€¼
 	BASIC_T1 = 0;
 	BASIC_T2 = 0;
 	BASIC_T3 = 0;
@@ -1921,15 +2550,21 @@ Options::Options(const string optionFile)
 	inFile = "";
 	ouFile = "";
 
-	ifstream confile(optionFile.c_str());
+	ifstream confile(optionFile.c_str(),ios::in);
 
+	if (!confile.is_open())
+	{
+		cout << "é…ç½®æ–‡ä»¶æ‰“å¼€å¤±è´¥!"<<endl;
+		exit(1);
+	}
+	
 	string tag, value, buf;
 	while (!confile.eof())
 	{
-		long pos = confile.cur;
+		buf = "";
 		getline(confile, buf);
 
-		if (buf[0] == '#' || (buf.length() == 0))
+		if (buf[0] == '#' || (buf.length() == 0) || buf==" ")
 		{
 			continue;
 		}
@@ -2020,34 +2655,120 @@ void Options::showConf()
 }
 
 
-void test()
+void createTestFile()
 {
-	string inputf = "data/lena8_compress.jls";
-	string outputf = "data/test.dat";
-	ifstream inf(inputf, ios::binary);
-	ofstream outf(outputf, ios::binary|ios::in|ios::out);
+	string inputf = "data/parall/t16n0.jls";
+	string outputf = "data/parall/testt16.jls";
+
+	ifstream inf(inputf.c_str(), ios::binary);
+	ofstream outf(outputf.c_str(), ios::binary);
 
 	BinaryInputStream inbn(inf.rdbuf(), BigEndian);
 	BinaryOutputStream outbn(outf.rdbuf(), BigEndian);
 	
-
+	char mark[15];
+	inbn.read(mark, 15);
+	outbn.write(mark, 15);
 
 	Uint8 str;
-	read8(inbn, str);
-	cout << str << endl;
-	printf("%X\n", str);
-	read8(inbn, str);
-	cout << str << endl;
-	printf("%X\n", str);
-	read8(inbn, str);
-	cout << str << endl;
-	printf("%X\n", str);
+	bool isOk=true;
+	inbn.seekg(-2, ios::end);
+	streampos pos = inbn.tellg();
 
-	outbn.seekp(4, ios::beg);
-	outbn.write8(str);
-	outbn.write8('0x01');
-	outbn.write8('0x02');
+	int i = 0;
+	while (i < 3)
+	{
+		i++;
+		streampos pos1;
+		inbn.seekg(15, ios::beg);
+		isOk = true;
+		while (isOk){
+			str = inbn.read8();
+			outbn.write8(str);
+			pos1 = inbn.tellg();
+			if (pos == pos1)
+			{
+				isOk=false;
+			}
+		}
 
+	}
+	outbn.write16(0xFFD9);
 
 }
 
+void testDecoder(){
+	
+	string conf = "conf.txt";
+	Options opt(conf);
+	opt.showConf();
+	cout << "-----------------------------------" << endl;
+	string infile = opt.getInputFile();
+	string outfile = opt.getOutputFile();
+
+	ifstream ifs(infile.c_str(), ios::binary|ios::in);
+	ofstream ofs(outfile.c_str(),ios::binary|ios::out|ios::in);
+
+	if (!ifs.is_open())
+	{
+		cout << "input file: "<< infile <<" open failure" << endl;
+		exit(1);
+	}
+	if (!ofs.is_open())
+	{
+		cout << "output file: " << outfile <<" open failure" << endl;
+		exit(1);
+	}
+
+
+
+	BinaryInputStream in(ifs.rdbuf(), opt.getEndian());
+	BinaryOutputStream out(ofs.rdbuf(), opt.getEndian());
+
+	Uint16 mark = in.read16();
+
+	if (mark != 0xFFD8)
+	{
+		cout << "not support format!" << endl;
+		return;
+	}
+
+	Uint16 sss;
+
+	streampos pos[3];
+	Uint8 temp;
+	int i = 0;
+	while (!in.eof()){
+		temp = in.read8();
+		if (temp == 0xFF)
+		{
+			if (in.read8() == 0xDA)
+			{
+				pos[i] = in.tellg();
+				i++;
+			}
+			
+		}
+	}
+
+	in.clear();
+	in.seekg(pos[0]-streampos(2));
+
+	/*cout << "------------" << endl;
+	sss = in.read16(); 
+	printf("%04X\n", sss);
+	sss = in.read16();
+	printf("%04X\n", sss);
+	sss = in.read16();
+	printf("%04X\n", sss);*/
+
+
+	decoder(opt, in, out);
+
+	in.seekg(pos[1] - streampos(2));
+	decoder(opt, in, out);
+
+	in.seekg(pos[2] - streampos(2));
+	decoder(opt, in, out);
+
+}

@@ -4,14 +4,20 @@
 #include "CommomFunction.h"
 #include "BinaryIO.h"
 #include <cassert>
-#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define CLAMP_1(i)	(((i) > MAXVAL || (i) < NEAR+1) ? NEAR+1 : (i))
+#define CLAMP_2(i)	(((i) > MAXVAL || (i) < T1) ? T1 : (i))
+#define CLAMP_3(i)	(((i) > MAXVAL || (i) < T2) ? T2 : (i))
 
 class Options;
 
-void test();
-
 bool encoder(Options opt);
-bool decoder(Options opt);
+//bool decoder(Options opt);
+bool decoder(Options opt, BinaryInputStream &in, BinaryOutputStream &out);
+void createTestFile();
+void testDecoder();
 
 class Options
 {
@@ -45,17 +51,17 @@ public:
 	void setCols(int cols)  {  COLOMNS = cols; }
 	void setMaxval(int maxval){  MAXVAL = maxval; }
 	void setBits(int bits)  {  BITS = bits; }
-	Endian setEndian(Endian endian){  ENDIAN = endian; }
-	bool setNoMarker(bool marker){ NOMARKER = marker; }
-	bool setNoRuns(bool runs){ NORUNS = runs; }
-	bool setVerbose(bool v){ VERBOSE = v; }
+	void setEndian(Endian endian){  ENDIAN = endian; }
+	void setNoMarker(bool marker){ NOMARKER = marker; }
+	void setNoRuns(bool runs){ NORUNS = runs; }
+	void setVerbose(bool v){ VERBOSE = v; }
 
-	string setInputFile(const string ifile){  inFile = ifile; }
-	string setOutputFile(const string ofile){ ouFile = ofile; }
+	void setInputFile(const string ifile){  inFile = ifile; }
+	void setOutputFile(const string ofile){ ouFile = ofile; }
 
 	void showConf();
 
-private:
+public:
 	int BASIC_T1;
 	int BASIC_T2;
 	int BASIC_T3;
