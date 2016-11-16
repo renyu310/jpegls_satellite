@@ -1,4 +1,4 @@
 JPEG-LS的解压缩算法
 实现了标准额JPEG-LS的对于单分量的无损和近无损压缩算法
 使用环境Windows和Linux
-实现了MPI的并行压缩。
+实现了MPI的并行解压。
