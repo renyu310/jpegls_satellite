@@ -25,7 +25,7 @@ ENDIAN Big
 VERBOSE
 
 input data/parall/testt16.jls
-output data/parall/hahaha.dat
+output data/parall/mpi.dat
 
 #input data/input/T8C0E0.JLS
 #output data/output/T8C0E0_decompress.ppm
